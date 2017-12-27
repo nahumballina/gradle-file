@@ -47,9 +47,8 @@ ext.versionFile=file 'version.properties'
 	}
 	
 	task loadVersion(){
-		doFirst{
 			project.version = readVersion()
-		}
+			//println "${project.version}"
 	}
 	
 	ProjectVersion readVersion(){
@@ -66,5 +65,51 @@ ext.versionFile=file 'version.properties'
 			new ProjectVersion(
 			versionProps.major.toInteger(),
 			versionProps.minor.toInteger(),
-			versionProps.release.toBoolean())
+			versionProps.release.toBoolean()
+			)
 	}
+	
+		task makeReleaseVersion(group: 'Version',description:'Makes project a release version'){
+			inputs.property ('release',version.release)
+			outputs.file versionFile
+			
+			doLast{
+				version.release = Boolean.TRUE
+				
+				ant.propertyfile(file:versionFile){
+					entry(key:'release',type:'string',operation:'=',value:'true')
+				}
+			}
+		}
+		
+		task makeSnapshotVersion(group: 'Version',description:'Makes project a release version'){
+			doLast{
+				version.release = Boolean.FALSE
+				ant.propertyfile(file:versionFile){
+					entry(key:'release',type:'string',operation:'=',value:'false')
+				}
+			}
+		}
+		
+		task makeReleaseVersion2 (type:ReleaseVersionTask){
+			release= project.version.release
+			destFile=project.versionFile
+		}
+		
+		class ReleaseVersionTask extends DefaultTask{
+			@Input Boolean release
+			@OutputFile File destFile
+			
+			ReleaseVersionTask(){
+				group='Version'
+				description='Makes project a release version'
+			}
+			
+			@TaskAction
+			void start(){
+				project.version.release = Boolean.TRUE
+				ant.propertyfile(file:project.versionFile){
+					entry(key:'release',type:'string',operation:'=',value:'true')
+				}
+			}
+		}
