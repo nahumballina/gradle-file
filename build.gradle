@@ -1,5 +1,6 @@
-version = new ProjectVersion(0,1)
-
+//version = new ProjectVersion(0,1)
+ext.versionFile=file 'version.properties'
+	
 	task first{
 		doFirst{
 			println 'first'
@@ -43,4 +44,27 @@ version = new ProjectVersion(0,1)
 		String toString(){
 			return "${major}.${minor}.${release ? 'RELEASE':'SNAPSHOT'}"
 		}
+	}
+	
+	task loadVersion(){
+		doFirst{
+			project.version = readVersion()
+		}
+	}
+	
+	ProjectVersion readVersion(){
+			logger.quiet 'Reading the version file.'
+			if (!versionFile.exists()){
+				throw new GradleException("Required version file does not exist: $versionFile.canoniclaPath")
+			}
+			Properties versionProps = new Properties()
+			
+			versionFile.withInputStream { stream ->
+				versionProps.load(stream)
+			}
+			
+			new ProjectVersion(
+			versionProps.major.toInteger(),
+			versionProps.minor.toInteger(),
+			versionProps.release.toBoolean())
 	}
