@@ -1,0 +1,46 @@
+version = new ProjectVersion(0,1)
+
+	task first{
+		doFirst{
+			println 'first'
+		}
+	}
+	
+	task second(dependsOn:['first']){
+		doFirst{
+			println 'second'
+		}
+	}
+	
+	task third{
+		doFirst{
+		println 'third'
+		}
+	}
+	
+	task printVersion(dependsOn: ['second','first']){
+		doLast{
+			println "version ${version}"
+		}
+	}
+	
+	class ProjectVersion{
+		Integer major
+		Integer minor
+		Boolean release
+		
+		ProjectVersion(Integer major, Integer minor){
+			this(major,minor,Boolean.FALSE)
+		}
+		
+		ProjectVersion(Integer major,Integer minor, Boolean release){
+			this.major=major
+			this.minor=minor
+			this.release=release
+		}
+		
+		@Override
+		String toString(){
+			return "${major}.${minor}.${release ? 'RELEASE':'SNAPSHOT'}"
+		}
+	}
