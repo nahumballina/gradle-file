@@ -1,4 +1,5 @@
 //version = new ProjectVersion(0,1)
+apply plugin: 'war' 
 ext.versionFile=file 'version.properties'
 	
 	task first{
@@ -112,4 +113,20 @@ ext.versionFile=file 'version.properties'
 					entry(key:'release',type:'string',operation:'=',value:'true')
 				}
 			}
+		}
+		
+		task createDistribution(type:Zip,dependsOn:makeReleaseVersion2){
+				from (war.outputs.files)
+				from (sourceSets*.allSource){
+					into 'src'
+				}
+				from (rootDir){
+					include versionFile.name
+				}
+				
+		}
+		
+		task backupDistribution(type:Copy){
+			from createDistribution.outputs.files
+			into "$buildDir/backup"
 		}
