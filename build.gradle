@@ -130,3 +130,54 @@ ext.versionFile=file 'version.properties'
 			from createDistribution.outputs.files
 			into "$buildDir/backup"
 		}
+
+		tasks.addRule("Pattern:increment<Classifier>Version - increments the project version"){
+			String taskName->
+				if (taskName.startsWith('increment')&&taskName.endsWith('Version')){
+					task(taskName){
+						doLast{
+							String classifier = (taskName-'increment'-'Version')
+							String currentVersion= version.toString()
+							switch(classifier) {
+								case 'Major': 	version.major+=1
+								break
+								case 'Minor': 	version.minor+=1
+								break
+								default: throw GradleException ("Classifier must be Major or Minor")
+							}
+					String part = classifier.toLowerCase()
+					ant.propertyfile(file:project.versionFile){
+						entry(key:part,type:'int',operation:'+',value:1)
+					}
+
+						String newVersion = version.toString()
+						println "Hemos pasado de la version ${currentVersion} a la version ${newVersion}"
+						}	
+					}
+				}			
+		}
+		tasks.addRule("Pattern:decrement<Classifier>Version - decrements the project version"){
+			String taskName->
+				if (taskName.startsWith('decrement')&&taskName.endsWith('Version')){
+					task(taskName){
+						doLast{
+							String classifier = (taskName-'decrement'-'Version')
+							String currentVersion= version.toString()
+							switch(classifier) {
+								case 'Major': 	version.major-=1
+								break
+								case 'Minor': 	version.minor-=1
+								break
+								default: throw GradleException ("Classifier must be Major or Minor")
+							}
+					String part = classifier.toLowerCase()
+					ant.propertyfile(file:project.versionFile){
+						entry(key:part,type:'int',operation:'-',value:1)
+					}
+
+						String newVersion = version.toString()
+						println "Hemos pasado de la version ${currentVersion} a la version ${newVersion}"
+						}	
+					}
+				}			
+		}
